@@ -1,4 +1,4 @@
-﻿using Book_API.Dtos.Book;
+using Book_API.Dtos.Book;
 using Book_API.Models;
 using Book_API.Services.BookService;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +20,7 @@ namespace Book_API.Controllers
             _bookService = bookService;
         }
 
-        [HttpGet("GetAll")]
+        [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<GetBookDto>>>> GetCollection()
         {
             return Ok(await _bookService.GetAllBooks());
@@ -30,6 +30,7 @@ namespace Book_API.Controllers
         [HttpGet("{bookCode}")]
         public async Task<ActionResult<ServiceResponse<GetBookDto>>> GetBook(string bookCode)
         {
+            //Also consider a case when bookCode is not found return 404
             return Ok(await _bookService.GetBookById(bookCode));
         }
 
@@ -55,9 +56,10 @@ namespace Book_API.Controllers
 
         }
 
-        [HttpPut]
+        [HttpPut("{bookCode}")]
         public async Task<ActionResult<ServiceResponse<GetBookDto>>> UpdateBook(UpdatedBookDto updateBook)
         {
+            //Pass bookCode to UpdateBook & make selection base on passed bookCode... 
             var response = await _bookService.UpdateBook(updateBook);
             if (response.Data == null)
             {
@@ -79,10 +81,11 @@ namespace Book_API.Controllers
             return Ok("Data was deleted sucessfully!");
         }
 
-        [HttpDelete("RemoveAll")]
-        public async Task<ActionResult<ServiceResponse<List<GetBookDto>>>> DeleteBookCollection()
+        [HttpDelete]
+        public ActionResult<ServiceResponse<List<GetBookDto>>> DeleteBookCollection()
         {
-            var response = await _bookService.DeleteBookCollection();
+            //Book collection is root collection. Ideally we should be only returning not allowed code with some message. 
+            //var response = await _bookService.DeleteBookCollection();
 
             return StatusCode(StatusCodes.Status405MethodNotAllowed);
         }
